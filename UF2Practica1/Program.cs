@@ -41,6 +41,7 @@ namespace UF2Practica1
 					var line = reader.ReadLine();
 					var values = line.Split(';');
 					var tmp = new Client() { nom = values[0], carretCompra = Int32.Parse(values[1]) };
+                    //Afegim el client a la cua
 					cua.Enqueue(tmp);
 
 				}
@@ -55,9 +56,27 @@ namespace UF2Practica1
 
 			clock.Start();
 
+            int i = 0;
 
-			// Instanciar les caixeres i afegir el thread creat a la llista de threads
-
+            // Instanciar les caixeres i afegir el thread creat a la llista de threads
+           
+            for (i=0; i<nCaixeres;i++)
+            {
+                /*Instanciem la caixera, generant la id, amb el contador del bucle(per exemple).
+                 * Per a cada caixera que ens generin, creem un fil que s'encarregarà de fer la crida 
+                 * per a gestionar les funcions que es criden
+                 */
+                var caixera = new Caixera() {idCaixera=i};
+                //Mirem que la cua no estigui buida i fem la crida a pocessar cua
+                while (MainClass.cua.Count > 0)
+                {
+                    var fil = new Thread(() => caixera.ProcessarCua());
+                    fil.Start();
+                    threads.Add(fil);
+                }
+                
+                
+            }
 
 
 
@@ -84,12 +103,20 @@ namespace UF2Practica1
 
 		public void ProcessarCua()
 		{
-			// Llegirem la cua extreient l'element
-			// cridem al mètode ProcesarCompra passant-li el client
+
+            // Llegirem la cua extreient l'element
+            // cridem al mètode ProcesarCompra passant-li el client
+            //(Mientras la cola no este vacia, cojo elemento y lo paso al metodo)
+            Client clientActual;
+            bool success = MainClass.cua.TryDequeue(out clientActual);
+            if (success==true)
+            {
+                ProcesarCompra(clientActual);
+            }
+            
 
 
-
-		}
+        }
 
 
 		private void ProcesarCompra(Client client)
