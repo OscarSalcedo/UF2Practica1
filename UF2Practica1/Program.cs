@@ -56,36 +56,32 @@ namespace UF2Practica1
 
 			clock.Start();
 
-            int i = 0;
+                int i;
 
-            // Instanciar les caixeres i afegir el thread creat a la llista de threads
-           
-            for (i=0; i<nCaixeres;i++)
-            {
-                /*Instanciem la caixera, generant la id, amb el contador del bucle(per exemple).
-                 * Per a cada caixera que ens generin, creem un fil que s'encarregarà de fer la crida 
-                 * per a gestionar les funcions que es criden
-                 */
-                var caixera = new Caixera() {idCaixera=i};
-                //Mirem que la cua no estigui buida i fem la crida a pocessar cua
-                while (MainClass.cua.Count > 0)
+                // Instanciar les caixeres i afegir el thread creat a la llista de threads
+
+                for (i = 0; i < nCaixeres; i++)
                 {
-                    var fil = new Thread(() => caixera.ProcessarCua());
-                    fil.Start();
-                    threads.Add(fil);
-                }
-                
-                
-            }
+                    /*Instanciem la caixera, generant la id, amb el contador del bucle(per exemple).
+                     * Per a cada caixera que ens generin, creem un fil que s'encarregarà de fer la crida 
+                     * per a gestionar les funcions que es criden
+                     */
+                    var caixera = new Caixera() { idCaixera = i };
+                    //Mirem que la cua no estigui buida i fem la crida a pocessar cua
+
+                        var fil = new Thread(() => caixera.ProcessarCua());
+                        fil.Start();
+                        threads.Add(fil);
+                }            
+
+            // Procediment per esperar que acabin tots els threads abans d'acabar
+            foreach (Thread thread in threads)
+                thread.Join();
 
 
 
-			// Procediment per esperar que acabin tots els threads abans d'acabar
-			foreach (Thread thread in threads)
-				thread.Join();
-
-			// Parem el rellotge i mostrem el temps que triga
-			clock.Stop();
+            // Parem el rellotge i mostrem el temps que triga
+            clock.Stop();
 			double temps = clock.ElapsedMilliseconds / 1000;
 			Console.Clear();
 			Console.WriteLine("Temps total Task: " + temps + " segons");
@@ -107,14 +103,17 @@ namespace UF2Practica1
             // Llegirem la cua extreient l'element
             // cridem al mètode ProcesarCompra passant-li el client
             //(Mientras la cola no este vacia, cojo elemento y lo paso al metodo)
-            Client clientActual;
-            bool success = MainClass.cua.TryDequeue(out clientActual);
-            if (success==true)
-            {
-                ProcesarCompra(clientActual);
-            }
-            
 
+            while (!MainClass.cua.IsEmpty)
+            {
+                var clientActual = new Client();
+                bool success = MainClass.cua.TryDequeue(out clientActual);
+
+                if (success == true)
+                {
+                    ProcesarCompra(clientActual);
+                }
+            }     
 
         }
 
@@ -152,7 +151,6 @@ namespace UF2Practica1
 			get;
 			set;
 		}
-
 
 		public int carretCompra
 		{
