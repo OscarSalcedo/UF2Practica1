@@ -102,7 +102,7 @@ namespace UF2Practica1
 
             // Llegirem la cua extreient l'element
             // cridem al mètode ProcesarCompra passant-li el client
-            //(Mientras la cola no este vacia, cojo elemento y lo paso al metodo)
+            //(Mientras la cola no este vacia, cojo elemento y lo paso al metodoo)
 
             while (!MainClass.cua.IsEmpty)
             {
